@@ -197,7 +197,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
         <h3>Your estimate</h3>
         <dl>
           <dt>Items</dt><dd id="sItems">0</dd>
-          <dt>Surface to wrap</dt><dd id="sSqft">0 sq ft</dd>
+          <dt>Footprint</dt><dd id="sSqft">0 sq ft</dd>
           <dt>Roll needed</dt><dd id="sFeet">0 ft</dd>
         </dl>
         <div class="fine">Estimated price</div>
@@ -267,7 +267,7 @@ const CONFIG = {
   WASTE: 0.15,           // overlap, seams and trim (0.15 = 15%)
 
   // --- Pricing ---
-  PRICE_PER_SQFT: 17,    // $ per square foot of wrapped surface, all in
+  PRICE_PER_SQFT: 17,    // $ per square foot of footprint (length x width), all in
   MIN_JOB: 0,            // $ minimum per visit (0 = none)
   RANGE: 0.15            // estimate shown as +/- 15%
 };
@@ -292,7 +292,7 @@ function areaFor(it){                                        // square inches, o
   if(!(L>0&&W>0&&H>0)) return 0;
   return L*W + 2*(L+W)*(H+CONFIG.TUCK_IN);
 }
-function sqftFor(it){ return Math.ceil(areaFor(it)/144)*(+it.qty||1); }   // billed surface
+function sqftFor(it){ return areaFor(it)?Math.ceil((+it.l)*(+it.w)/144)*(+it.qty||1):0; }   // billed footprint (length x width)
 function feetFor(it){                                        // linear feet of roll to bring
   return Math.ceil(areaFor(it)*(1+CONFIG.WASTE)/CONFIG.ROLL_WIDTH_IN/12)*(+it.qty||1);
 }
@@ -438,7 +438,7 @@ function sync(){
   $("sNote").textContent=!t.count&&!t.pending?"Add items to see a price range."
     :t.pending?"Still identifying "+t.pending+" item"+(t.pending>1?"s":"")+"…"
     :t.missing?t.missing+" item"+(t.missing>1?"s need":" needs")+" a size before the estimate is complete."
-    :`${t.sqft} sq ft at $${CONFIG.PRICE_PER_SQFT}/sq ft across ${t.count} item${t.count>1?"s":""}.`;
+    :`${t.sqft} sq ft footprint at $${CONFIG.PRICE_PER_SQFT}/sq ft across ${t.count} item${t.count>1?"s":""}.`;
   const txt=estimateText();
   $("bEst").textContent=txt||"No estimate attached. Use the estimate tool above, or just send the form and we will quote on site.";
 }
